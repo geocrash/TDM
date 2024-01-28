@@ -1,0 +1,141 @@
+For feature selection, there are 4 folders:
+
+All: Feature selection for all the features using random forest estimator
+Continuous: Feature selection for continuous features using standard scaling and then linear regression estimator
+Discrete: 
+a) Feature selection for discrete features using catboost, then standard scaling, then linear regression estimator. Found in Discrete\Continuous folder.
+b) Feature selection for discrete features using standard scaling, then linear regression estimator. Found in Discrete\Discrete folder.
+c) Feature selection for discrete features using random forest estimator. Found in Discrete\Discrete folder.
+Discrete Pathogens: Feature selection for pathogen features using random forest estimator
+
+
+
+
+Each Folder will have roughly the same components. You will find 8 CSV files, and at least two Python notebooks. 
+
+5_CON_origin: These are 5 random control patients taken out that have a sofa score of 1.0 in at least one day.
+5_TDM_origin: These are 5 random TDM patients taken out that have a sofa score of 1.0 in at least one day.
+continuous/discrete/pathogens: This is a dataframe with continuous/discrete/pathogens values. It is only used for getting the continuous/discrete/pathogens parameters.
+origin: This is the origin that will be used for all patients. After taking out the 5 control and 5 TDM patients that have at least one sofa score of 1.0 at random, a dataframe is created with all the patients that have at least one sofa score equal to 1.0. This contains a total of 16 patients. Filtering will need to be completed to keep only the rows that have a sofa score of 1.0 when doing mah. distance.
+patients: This is the full dataset with all patients.
+test_data: This is a dataset with 20 control patients and 20 TDM patients. This dataset is NOT used for the selection during feature selection.
+train_data: This is the full dataset, minus the test_data. This dataset IS used for the selection during feature selection.
+ 
+GA Feature Selection: In this notebook, the GA feature selection is completed using Linear Regression or Random Forest to select the ideal number of features to use. A box plot is created at the end that shows the negative absolute mean score depending on the number of features chosen. It has the final features selection at the end, but this is a result of the GA 100 trials notebook.
+GA 100 trials: In this notebook, after finding the ideal number of features, a feature selection is run 100 times for this number of features. The final features chosen are the ones that have been selected at least 40 out of 100 times. The result is copied back into the GA Feature Selection notebook.
+
+All CSV files are the same in each folder and they contain all columns of the patient's list, except the continuous/discrete/pathogens. The way that the selection of the CSV files (5_CON_origin, 5_TDM_origin, origin, test_data, train_data) took place can be found in the file: 
+
+Feature Selection Finalized\Continuous\GA Feature Selection Continuous
+
+The notebooks differ slightly depending on the estimators used in the GA feature selection.
+
+
+
+
+
+ 
+Here is the summary of the results for each folder:
+
+1) All
+
+remark: number of features selected is stopped earlier due to the high computational requirement. It is left to run for 54 out of 197 features. Negative mean absolute error had been constant since 23. I repeated the same feature selection for 100 features, 150 features, and 197 features and I found that the negative mean absolute error remained at the same value from 23 features up to 197. This result is found in notebook GA Feature Selection RF All 1.
+remark 2: by using a cut off of the attributes that are repeated at least 40 times, only 9 attributes showed. Therefore, the attributes that popped up 10 times are chosen, giving 28 different attributes at the end.
+number of features selected: 23
+number of features selected after 100 trials: 28
+features_selected = ['urine_output(mL)', 'Verbal(5:clear-4:confused-3:single_words-2:single_sounds-1:no)', 
+                     'Motor(6=>1_getting_worse)', 'Schock(0:n-1:y-9:unknown)', 'thrombocit_min', 'PF_ratio_min', 
+                     'type_of_ventilation(0:n-1:noninvasive-2:invasive)', 'kreatinin_min', 'Dysfu(0:n-1:y-9:unknown)', 
+                     'mean_art.bloodpressure_min', 'Hypot(0:n-1:y-9:unknown)', 'renal_replacement(0:n-1:y)', 
+                     'FIO2_at_lowest_PF_ratio', 'sample_conc(mg/L)', 'contd_inf_rate(mL/h)', 'ph_min', 'leukocytes_min', 
+                     'Brain(0:n-1:y-9:unknown)', 'GCS(1:raised-2:estimated)', 'Azid(0:n-1:y-9:unknown)', 
+                     'mean_art.bloodpressure_max', 'Trach_secration(0:little-1:abundant-2:ab_with_prulent)', 
+                     'Hypox(0:n-1:y-9:unknown)', 'INFNEU_B', 'kreatinin_max', 'ZNS(0:n-1:y)', 
+                     'Clinical_cure(1:healing-2:improvement-3:failure-9:na)', 
+                     'pip_resistance_211(1:sensitive-2:intermediate-3:resistant-9:not_tested)']
+
+2) Continuous: 
+
+number of features selected: 12
+number of features selected after 100 trials: 13
+features_selected = ['mean_art.bloodpressure_min', 'ph_min', 'urine_output(mL)', 'leukocytes_min', 'thrombocit_min', 
+                     'sample_conc(mg/L)', 'temp_min', 'temp_max', 'Weight', 'ph_max', 'PF_ratio_min', 
+                     'pO2_at_lowest_PF_ratio', 'FIO2_at_lowest_PF_ratio']
+
+3) Discrete
+
+a) Catboost, standard scaling, linear regression
+number of features selected: 18
+number of features selected after 100 trials: 18
+features_selected = ['type_of_ventilation(0:n-1:noninvasive-2:invasive)', 'renal_replacement(0:n-1:y)', 
+                     'Verbal(5:clear-4:confused-3:single_words-2:single_sounds-1:no)', 'Motor(6=>1_getting_worse)', 
+                     'Thromb(0:n-1:y-9:unknown)', 'Hypot(0:n-1:y-9:unknown)', 'Schock(0:n-1:y-9:unknown)', 
+                     'Hypox(0:n-1:y-9:unknown)', 'Dysfu(0:n-1:y-9:unknown)', 'Microbio_cure(1=>7-9)', 'Thoracic(0:n-1:y)', 
+                     'ZNS(0:n-1:y)', 'how_applied(1:contd-2:prolonged-3:short)', 'target_conc(mg/L)', 
+                     'Cathater_infection(0:n-1:y)', 'pip_give(0:n-1:y)', 'Bolus_delivery(0:n-1:y)', 'is_infected(1:y)']
+
+b) Standard scaling, linear regression
+number of features selected: 18
+number of features selected after 100 trials: 18
+features_selected = ['type_of_ventilation(0:n-1:noninvasive-2:invasive)', 'renal_replacement(0:n-1:y)', 
+                     'Verbal(5:clear-4:confused-3:single_words-2:single_sounds-1:no)', 'Thromb(0:n-1:y-9:unknown)', 
+                     'Hypot(0:n-1:y-9:unknown)', 'Dysfu(0:n-1:y-9:unknown)', 'Schock(0:n-1:y-9:unknown)', 
+                     'Clinical_cure(1:healing-2:improvement-3:failure-9:na)', 'change_in_pip(0:n-1:y)', 'ZNS(0:n-1:y)', 
+                     'Pneumonia(0:n-1:y)', 'how_applied(1:contd-2:prolonged-3:short)', 'Motor(6=>1_getting_worse)', 
+                     'Gastro(0:n-1:y)', 'infection_origin(1:outpatient-2:nosocomial)', 'CHECK2_B', 'Bolus_delivery(0:n-1:y)', 
+                     'other_2(0:n-1:y)']
+
+c) Random forest
+number of features selected: 18
+number of features selected after 100 trials: 19
+features_selected = ['type_of_ventilation(0:n-1:noninvasive-2:invasive)', 'renal_replacement(0:n-1:y)', 
+                     'Thromb(0:n-1:y-9:unknown)', 'Hypot(0:n-1:y-9:unknown)', 'Dysfu(0:n-1:y-9:unknown)', 
+                     'Schock(0:n-1:y-9:unknown)', 'Brain(0:n-1:y-9:unknown)', 'Hypox(0:n-1:y-9:unknown)', 
+                     'how_applied(1:contd-2:prolonged-3:short)', 'Clinical_cure(1:healing-2:improvement-3:failure-9:na)', 
+                     'degree(1:clinical-2:lab)', 'Verbal(5:clear-4:confused-3:single_words-2:single_sounds-1:no)', 
+                     'Motor(6=>1_getting_worse)', 'change_in_pip(0:n-1:y)', 'Localization(0:n-1:y)', 'target_conc(mg/L)', 
+                     'ARDS(0:n-1:y)', 'Drainage_number', 'GCS(1:raised-2:estimated)']
+
+Recommendation for discrete: I suggest either taking random forest values only, or taking the union of the features that intersect in at least two methods. This leaves us with:
+number of features selected: 18
+number of features selected after 100 trials: 15
+features_selected = ['Hypot(0:n-1:y-9:unknown)', 'Clinical_cure(1:healing-2:improvement-3:failure-9:na)', 
+                     'Thromb(0:n-1:y-9:unknown)', 'Motor(6=>1_getting_worse)', 'Hypox(0:n-1:y-9:unknown)', 'ZNS(0:n-1:y)', 
+                     'Verbal(5:clear-4:confused-3:single_words-2:single_sounds-1:no)', 'Schock(0:n-1:y-9:unknown)', 
+                     'target_conc(mg/L)', 'Dysfu(0:n-1:y-9:unknown)', 'renal_replacement(0:n-1:y)', 
+                     'how_applied(1:contd-2:prolonged-3:short)', 'Bolus_delivery(0:n-1:y)', 'change_in_pip(0:n-1:y)', 
+                     'type_of_ventilation(0:n-1:noninvasive-2:invasive)']
+
+Another option is to use the union of random forest and the features chosen above ^. This leaves us with:
+number of features selected: 18
+number of features selected after 100 trials: 21
+features_selected = ['Thromb(0:n-1:y-9:unknown)', 'GCS(1:raised-2:estimated)', 'target_conc(mg/L)', 'change_in_pip(0:n-1:y)', 
+                     'how_applied(1:contd-2:prolonged-3:short)', 'ARDS(0:n-1:y)', 'Localization(0:n-1:y)', 'Bolus_delivery(0:n-1:y)', 
+                     'Motor(6=>1_getting_worse)', 'Dysfu(0:n-1:y-9:unknown)', 'degree(1:clinical-2:lab)', 
+                     'type_of_ventilation(0:n-1:noninvasive-2:invasive)', 'Clinical_cure(1:healing-2:improvement-3:failure-9:na)', 
+                     'Verbal(5:clear-4:confused-3:single_words-2:single_sounds-1:no)', 'Drainage_number', 'Schock(0:n-1:y-9:unknown)', 
+                     'Hypox(0:n-1:y-9:unknown)', 'Brain(0:n-1:y-9:unknown)', 'Hypot(0:n-1:y-9:unknown)', 'renal_replacement(0:n-1:y)', 'ZNS(0:n-1:y)']
+
+4) Discrete Pathogens
+
+remark: number of features selected is stopped earlier. It is left to run for 65 out of 108 features. Negative mean absolute error had been constant since 33. 
+number of features selected: 33
+number of features selected after 100 trials: 21
+feature_selection = ['Pathogen_212(0:n-1:y)', 'pip_resistance_202(1:sensitive-2:intermediate-3:resistant-9:not_tested)', 
+                     'pip_resistance_303(1:sensitive-2:intermediate-3:resistant-9:not_tested)', 'Pathogen_508(0:n-1:y)', 
+                     'pip_resistance_101(1:sensitive-2:intermediate-3:resistant-9:not_tested)', 'can_cause_sepsis_210(0:unlikely-1:probable-9:unknown)', 
+                     'can_cause_sepsis_506(0:unlikely-1:probable-9:unknown)', 'Pathogen_104(0:n-1:y)', 'Pathogen_505(0:n-1:y)', 
+                     'can_cause_sepsis_110(0:unlikely-1:probable-9:unknown)', 'can_cause_sepsis_303(0:unlikely-1:probable-9:unknown)', 
+                     'Pathogen_205(0:n-1:y)', 'Pathogen_206(0:n-1:y)', 'Pathogen_210(0:n-1:y)', 'can_cause_sepsis_301(0:unlikely-1:probable-9:unknown)', 
+                     'can_cause_sepsis_205(0:unlikely-1:probable-9:unknown)', 'Pathogen_305(0:n-1:y)', 
+                     'pip_resistance_205(1:sensitive-2:intermediate-3:resistant-9:not_tested)', 
+                     'pip_resistance_208(1:sensitive-2:intermediate-3:resistant-9:not_tested)', 
+                     'can_cause_sepsis_106(0:unlikely-1:probable-9:unknown)', 'pip_resistance_305(1:sensitive-2:intermediate-3:resistant-9:not_tested)']
+
+Finally, I have created a folder for post-processing where I will do the mah. distances. In there, I will calculate the mah. distance for the dataset including all features, the union of the feature selection (combining continuous, discrete, and pathogens), and GA feature selection of all features.
+
+
+
+
+
+
